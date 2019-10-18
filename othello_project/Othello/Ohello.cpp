@@ -1,6 +1,0 @@
-﻿#include "OthelloLib.h"
-
-int main() {
-
-	return 0;
-}
