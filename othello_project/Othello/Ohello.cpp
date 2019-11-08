@@ -4,9 +4,11 @@ int main() {
 
 	//配列の要素数の設定
 	int board[WIDTH * HEIGHT];
+	int board2[HEIGHT][WIDTH];
 
-	//縦、横の配置指定用変数
+	//縦、横の配置指定(構造体)
 	struct POINT position;
+    struct POINT* directions;
 
 	//現在のプレイヤー(1 = ●、2 = ◯)
 	int player = 1;
@@ -38,17 +40,22 @@ int main() {
 			printf("横:"); scanf_s("%d", &position.x);
 			printf("縦:"); scanf_s("%d", &position.y);
 
-			if ((position.x > 7 || position.y > 7) || (position.y < 0 || position.y < 0)) {
+			if ((position.x > 7 || position.y > 7) || (position.x < 0 || position.y < 0)) { //盤面の範囲外の場合
 				printf("盤面の範囲外です、違う場所を指定ください。");
 			}
-			//else if () {
-			//	printf("");
-			//}
-			else {
+		/*	else if () {  //既に盤面に置かれていた場合
+				printf("既に石を配置済みなので、違う場所を指定してください。");
+			} */
+			else{
 				break;
 			}
 		}
 
+	    directions = &position;
+
+		setDirection(directions, 8);
+
+		printBoard(board, WIDTH * HEIGHT);
 	}
 
 	return 0;
