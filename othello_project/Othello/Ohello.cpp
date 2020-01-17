@@ -10,8 +10,8 @@ int main() {
 	//縦、横の配置指定(構造体)
 	struct POINT position;
 
-	//現在のプレイヤー(1 = ●、2 = ◯)
-	int player = 1; 
+	//現在のプレイヤー(BLACK_STONE = ●、WHITE_STONE = ◯)
+	int player = BLACK_STONE; 
 
 	//石の数(●)
 	int Bp = 2;
@@ -20,7 +20,7 @@ int main() {
 	int Wp = 2;
 
 	//パス入力用
-	int pass = 1;
+	int pass = PASS;
 
 	//挟める石の数(8 = 挟む石が無い 8以外 = 挟む石がある)
 	int rbCount;
@@ -45,26 +45,26 @@ int main() {
 
 	while (true)
 	{
-		if (player == 1) {
-			if (pass == 0) {
-				pass = 1;
+		if (player == BLACK_STONE) {
+			if (pass == NOT_PASS) {
+				pass = PASS;
 			}
-			else if (pass == 1)
+			else if (pass == PASS)
 			{
 				printf("現在のプレイヤー:%s\n", BLACK_STONE_STR);
-				player = 2;
+				player = WHITE_STONE;
 				playStone = BLACK_STONE;
 			}
 		}
-		else if (player == 2)
+		else if (player == WHITE_STONE)
 		{
-			if (pass == 0) {
-				pass = 1;
+			if (pass == NOT_PASS) {
+				pass = PASS;
 			}
-			else if (pass == 1)
+			else if (pass == PASS)
 			{
 				printf("現在のプレイヤー:%s\n", WHITE_STONE_STR);
-				player = 1;
+				player = BLACK_STONE;
 				playStone = WHITE_STONE;
 			}
 		}
@@ -78,7 +78,7 @@ int main() {
 			if ((position.x > 7 || position.y > 7) || (position.x < 0 || position.y < 0)) { //盤面の範囲外の場合
 				printf("盤面の範囲外です、違う場所を指定してください。");
 			}
-			else if (pboard[(position.x * 8) + position.y] != NONE_PLAY)
+			else if (pboard[(position.x * WIDTH) + position.y] != NONE_PLAY)
 			{
 				printf("既に石を配置済みなので、違う場所を指定ください。");
 			}
@@ -96,68 +96,68 @@ int main() {
 
 		//8方向探索 左,左下,下,右下,右,右上,上,左上の順で探索;
 		for (int i = 0; i < 8; i++) {
-		// 探索の方向
-		POINT Direction = directions[i];
-		// 探索初期位置
-		int initY = playPoint.y + Direction.y;
-		int initX = playPoint.x + Direction.x;
+			// 探索の方向
+			POINT Direction = directions[i];
+			// 探索初期位置
+			int initY = playPoint.y + Direction.y;
+			int initX = playPoint.x + Direction.x;
 
-		// 探索
-		int reverseBoardCount = 0;
+			// 探索
+			int reverseBoardCount = 0;
 
-		//探索用(挟む石がない = false、ある = true)
-		bool isFound = false;
+			//探索用(挟む石がない = false、ある = true)
+			bool isFound = false;
 
-		for (int y = initY, x = initX;
-			(y >= 0 && y < HEIGHT) && (x >= 0 && x < WIDTH);
-			y += Direction.y, x += Direction.x) {
+			for (int y = initY, x = initX;
+				(y >= 0 && y < HEIGHT) && (x >= 0 && x < WIDTH);
+				y += Direction.y, x += Direction.x) {
 
-			if (pboard[(x * 8) + y] == NONE_PLAY) {
-				//未プレイ
-				PCount++;
-				break;
-			}
-
-			//隣にプレイヤー自身の石があった場合
-			if (pboard[((x - Direction.x) * 8) + (y - Direction.y)] == playStone) {
-				PCount++;
-				break;
-			}
-
-			if (pboard[(x * 8) + y] == playStone) {
-				// プレイヤー自身の石を発見
-				isFound = true;
-				break;
-			}
-			reverseBoardCount++;
-		}
-
-		if (isFound == true) {
-			int ix = initX;
-			int iy = initY;
-			for (int i = 0; i < reverseBoardCount; i++) {
-				if (player == BLACK_STONE) {
-					board[(ix * 8) + iy] = BLACK_STONE;
-					Bp++;
-					Wp--;
-				}
-				else if (player == WHITE_STONE) {
-					board[(ix * 8) + iy] = WHITE_STONE;
-					Wp++;
-					Bp--;
+				if (pboard[(x * 8) + y] == NONE_PLAY) {
+					//未プレイ
+					PCount++;
+					break;
 				}
 
-				ix += Direction.x;
-				iy += Direction.y;
-			}
-		}
+				//隣にプレイヤー自身の石があった場合
+				if (pboard[((x - Direction.x) * WIDTH) + (y - Direction.y)] == playStone) {
+					PCount++;
+					break;
+				}
 
-		//反転対象の石を追加
-		rbCount += reverseBoardCount;
-		PCount += reverseBoardCount;
+				if (pboard[(x * 8) + y] == playStone) {
+					// プレイヤー自身の石を発見
+					isFound = true;
+					break;
+				}
+				reverseBoardCount++;
+			}
+
+			if (isFound == true) {
+				int ix = initX;
+				int iy = initY;
+				for (int i = 0; i < reverseBoardCount; i++) {
+					if (player == BLACK_STONE) {
+						board[(ix * 8) + iy] = BLACK_STONE;
+						Bp++;
+						Wp--;
+					}
+					else if (player == WHITE_STONE) {
+						board[(ix * 8) + iy] = WHITE_STONE;
+						Wp++;
+						Bp--;
+					}
+
+					ix += Direction.x;
+					iy += Direction.y;
+				}
+			}
+
+			//反転対象の石を追加
+			rbCount += reverseBoardCount;
+			PCount += reverseBoardCount;
 	  }
  
-	  if(rbCount == 0 || rbCount == 8)  //挟む石が無い
+	  if(rbCount == 0 || PCount == 8)  //挟む石が無い
 	  {
 		  while (true) {
 			  printf("挟む石がありません。パス(0:しない、1:する)しますか?\n");
@@ -227,7 +227,7 @@ int main() {
 		  }
 		  else if (Wp == Bp) //数が同じだったら
 		  {
-			  printf("DROW");
+			  printf("DRAW");
 			  break;
 		  }
 	  }
